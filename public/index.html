@@ -30,6 +30,7 @@
                 <p><strong>Kako testirati:</strong></p>
                 <ul>
                     <li>Unesite poruku sa JavaScript kodom, npr: <code>&lt;img src=x onerror="alert('XSS: ' + document.cookie)"&gt;</code></li>
+                    <li><strong>Primjer s klikom:</strong> Unesite: <code>&lt;div onclick="alert('XSS napad izvršen! Cookie: ' + document.cookie)" style="cursor:pointer;color:blue;padding:10px;border:1px solid red;"&gt;Klikni na mene za besplatan mobitel&lt;/div&gt;</code> - Nakon što umetnete ovu poruku, pogledajte u listu poruka i kliknite na plavi okvir s crvenim borderom kako biste izvršili XSS napad</li>
                     <li>Kada je ranjivost isključena, HTML znakovi će biti escapirani i kod se neće izvršiti</li>
                 </ul>
             </div>
