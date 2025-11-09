@@ -258,7 +258,7 @@ async function loadAdminUsers() {
         
         if (data.success) {
             resultDiv.innerHTML = `
-                <div class="success-message">✓ Uspješno učitano! Pristup dozvoljen.</div>
+                <div class="success-message">Uspješno učitano! Pristup dozvoljen.</div>
                 <div class="user-list">
                     <h4>Lista korisnika:</h4>
                     ${data.users.map(user => `
