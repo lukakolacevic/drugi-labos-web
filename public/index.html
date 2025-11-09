@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigurnosne Ranjivosti - Demonstracija</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Drugi projekt</h1>
+            <p class="subtitle">Demonstracija sigurnosnih ranjivosti web-aplikacija</p>
+        </header>
+
+        <!-- XSS Section -->
+        <section class="vulnerability-section">
+            <div class="section-header">
+                <h2>Cross-site scripting (XSS)</h2>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="xss-toggle" checked>
+                    <span class="slider"></span>
+                    <span class="toggle-label">Ranjivost uključena</span>
+                </label>
+            </div>
+
+            <div class="instructions">
+                <h3>Upute:</h3>
+                <p>Ovo je demonstracija XSS (Cross-site scripting) ranjivosti. Kada je ranjivost uključena, unos korisnika se ne sanitizira i omogućava izvršavanje JavaScript koda.</p>
+                <p><strong>Kako testirati:</strong></p>
+                <ul>
+                    <li>Unesite poruku sa JavaScript kodom, npr: <code>&lt;script&gt;alert('XSS Attack! Cookie: ' + document.cookie)&lt;/script&gt;</code></li>
+                    <li>Ili jednostavnije: <code>&lt;img src=x onerror="alert('XSS: ' + document.cookie)"&gt;</code></li>
+                    <li>Kada je ranjivost isključena, HTML znakovi će biti escapirani i kod se neće izvršiti</li>
+                </ul>
+            </div>
+
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="author">Autor:</label>
+                    <input type="text" id="author" placeholder="Vaše ime" value="Korisnik">
+                </div>
+                <div class="form-group">
+                    <label for="message">Poruka:</label>
+                    <textarea id="message" rows="4" placeholder="Unesite poruku..."></textarea>
+                </div>
+                <button onclick="addMessage()" class="btn btn-primary">Dodaj poruku</button>
+            </div>
+
+            <div class="messages-container">
+                <h3>Poruke:</h3>
+                <div id="messages-list"></div>
+            </div>
+        </section>
+
+        <!-- Broken Access Control Section -->
+        <section class="vulnerability-section">
+            <div class="section-header">
+                <h2>Loša kontrola pristupa (Broken Access Control)</h2>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="bac-toggle" checked>
+                    <span class="slider"></span>
+                    <span class="toggle-label">Ranjivost uključena</span>
+                </label>
+            </div>
+
+            <div class="instructions">
+                <h3>Upute:</h3>
+                <p>Ova ranjivost omogućava korisnicima pristup resursima koji im ne bi trebali biti dostupni.</p>
+                <p><strong>Kako testirati:</strong></p>
+                <ul>
+                    <li>Prijavite se kao obični korisnik (username: <code>user</code>, password: <code>user123</code>)</li>
+                    <li>Kada je ranjivost uključena, obični korisnik može pristupiti admin stranici i vidjeti sve korisnike</li>
+                    <li>Kada je ranjivost isključena, samo admin (username: <code>admin</code>, password: <code>admin123</code>) može pristupiti admin stranici</li>
+                </ul>
+            </div>
+
+            <div class="auth-section">
+                <div id="login-form">
+                    <h3>Prijava</h3>
+                    <div class="form-group">
+                        <label for="username">Korisničko ime:</label>
+                        <input type="text" id="username" placeholder="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka:</label>
+                        <input type="password" id="password" placeholder="password">
+                    </div>
+                    <button onclick="login()" class="btn btn-primary">Prijavi se</button>
+                    <div id="login-error" class="error-message"></div>
+                </div>
+
+                <div id="user-info" style="display: none;">
+                    <h3>Prijavljeni korisnik</h3>
+                    <div id="user-details"></div>
+                    <button onclick="logout()" class="btn btn-secondary">Odjavi se</button>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>Admin panel</h3>
+                <button onclick="loadAdminUsers()" class="btn btn-primary">Učitaj sve korisnike</button>
+                <div id="admin-result"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
