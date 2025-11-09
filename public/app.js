@@ -66,11 +66,62 @@ async function addMessage() {
         const data = await response.json();
         if (data.success) {
             document.getElementById('message').value = '';
-            loadMessages();
+            // Add the new message directly instead of reloading all messages
+            // This prevents all previous XSS payloads from executing again
+            addMessageToDisplay(data.message);
         }
     } catch (error) {
         console.error('Error adding message:', error);
     }
+}
+
+// Add a single message to the display without reloading all messages
+// This prevents all previous XSS payloads from executing again
+function addMessageToDisplay(msg) {
+    const messagesList = document.getElementById('messages-list');
+    
+    // Remove empty state if present
+    if (messagesList.querySelector('.empty-state')) {
+        messagesList.innerHTML = '';
+    }
+    
+    // Get current vulnerability state
+    fetch('/api/vulnerabilities')
+        .then(response => response.json())
+        .then(currentVulns => {
+            // Helper function to escape HTML
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+            
+            // If XSS vulnerability is OFF, escape the message content
+            const displayMessage = currentVulns.xss ? msg.message : escapeHtml(msg.message);
+            const displayAuthor = currentVulns.xss ? msg.author : escapeHtml(msg.author);
+            
+            const messageItem = document.createElement('div');
+            messageItem.className = 'message-item';
+            messageItem.innerHTML = `
+                <div class="message-header">
+                    <span>${displayAuthor}</span>
+                    <span>${new Date(msg.timestamp).toLocaleString('hr-HR')}</span>
+                </div>
+                <div class="message-content">${displayMessage || '(Empty message)'}</div>
+            `;
+            
+            messagesList.appendChild(messageItem);
+        })
+        .catch(error => {
+            console.error('Error getting vulnerability state:', error);
+            // Fallback: just reload all messages
+            loadMessages();
+        });
 }
 
 async function loadMessages() {
