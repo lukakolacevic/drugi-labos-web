@@ -86,7 +86,7 @@ async function loadMessages() {
                     <span>${msg.author}</span>
                     <span>${new Date(msg.timestamp).toLocaleString('hr-HR')}</span>
                 </div>
-                <div class="message-content">${msg.message}</div>
+                <div class="message-content">${msg.message || '(Empty message)'}</div>
             </div>
         `).join('');
     } catch (error) {

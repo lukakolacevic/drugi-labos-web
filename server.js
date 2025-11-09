@@ -15,36 +15,34 @@ app.use(session({
   secret: 'insecure-secret-key',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { 
+    secure: false,
+    httpOnly: false  // Allow JavaScript access to cookie for XSS demonstration
+  }
 }));
 
-// Serve static files
+
 app.use(express.static('public'));
 
-// In-memory data storage
 let messages = [];
 let users = [
   { id: 1, username: 'admin', password: 'admin123', role: 'admin', email: 'admin@example.com' },
   { id: 2, username: 'user', password: 'user123', role: 'user', email: 'user@example.com' }
 ];
 
-// Vulnerability toggles
 let vulnerabilities = {
   xss: true,
   brokenAccessControl: true
 };
 
-// Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Get vulnerability status
 app.get('/api/vulnerabilities', (req, res) => {
   res.json(vulnerabilities);
 });
 
-// Toggle vulnerabilities
 app.post('/api/vulnerabilities/toggle', (req, res) => {
   const { type } = req.body;
   if (vulnerabilities.hasOwnProperty(type)) {
@@ -55,7 +53,6 @@ app.post('/api/vulnerabilities/toggle', (req, res) => {
   }
 });
 
-// XSS Vulnerability Routes
 app.get('/api/messages', (req, res) => {
   res.json(messages);
 });
@@ -78,7 +75,6 @@ app.post('/api/messages', (req, res) => {
   res.json({ success: true, message: newMessage });
 });
 
-// Broken Access Control Routes
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   
@@ -116,11 +112,8 @@ app.get('/api/auth/current', (req, res) => {
   }
 });
 
-// Broken Access Control: Admin-only route
 app.get('/api/admin/users', (req, res) => {
-  // Broken Access Control: When vulnerability is enabled, no proper authorization check
   if (vulnerabilities.brokenAccessControl) {
-    // Vulnerable: Only checks if user is logged in, not if they're admin
     if (req.session.userId) {
       res.json({ success: true, users: users.map(u => ({ 
         id: u.id, 
@@ -132,7 +125,6 @@ app.get('/api/admin/users', (req, res) => {
       res.status(401).json({ success: false, error: 'Not authenticated' });
     }
   } else {
-    // Secure: Proper authorization check
     if (req.session.userId && req.session.role === 'admin') {
       res.json({ success: true, users: users.map(u => ({ 
         id: u.id, 
@@ -146,7 +138,6 @@ app.get('/api/admin/users', (req, res) => {
   }
 });
 
-// Helper function to escape HTML (for when XSS is disabled)
 function escapeHtml(text) {
   const map = {
     '&': '&amp;',
