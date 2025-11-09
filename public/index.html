@@ -29,8 +29,7 @@
                 <p>Ovo je demonstracija XSS (Cross-site scripting) ranjivosti. Kada je ranjivost uključena, unos korisnika se ne sanitizira i omogućava izvršavanje JavaScript koda.</p>
                 <p><strong>Kako testirati:</strong></p>
                 <ul>
-                    <li>Unesite poruku sa JavaScript kodom, npr: <code>&lt;script&gt;alert('XSS Attack! Cookie: ' + document.cookie)&lt;/script&gt;</code></li>
-                    <li>Ili jednostavnije: <code>&lt;img src=x onerror="alert('XSS: ' + document.cookie)"&gt;</code></li>
+                    <li>Unesite poruku sa JavaScript kodom, npr: <code>&lt;img src=x onerror="alert('XSS: ' + document.cookie)"&gt;</code></li>
                     <li>Kada je ranjivost isključena, HTML znakovi će biti escapirani i kod se neće izvršiti</li>
                 </ul>
             </div>

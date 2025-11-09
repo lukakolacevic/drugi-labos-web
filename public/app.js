@@ -33,6 +33,11 @@ async function toggleVulnerability(type) {
             vulnerabilities[type] = data[type];
             const status = data[type] ? 'uključena' : 'isključena';
             alert(`Ranjivost ${type} je sada ${status}`);
+            
+            // Reload messages if XSS vulnerability was toggled
+            if (type === 'xss') {
+                loadMessages();
+            }
         }
     } catch (error) {
         console.error('Error toggling vulnerability:', error);
@@ -73,6 +78,10 @@ async function loadMessages() {
         const response = await fetch('/api/messages');
         const messages = await response.json();
         
+        // Get current vulnerability state
+        const vulnResponse = await fetch('/api/vulnerabilities');
+        const currentVulns = await vulnResponse.json();
+        
         const messagesList = document.getElementById('messages-list');
         
         if (messages.length === 0) {
@@ -80,15 +89,33 @@ async function loadMessages() {
             return;
         }
 
-        messagesList.innerHTML = messages.map(msg => `
-            <div class="message-item">
-                <div class="message-header">
-                    <span>${msg.author}</span>
-                    <span>${new Date(msg.timestamp).toLocaleString('hr-HR')}</span>
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        messagesList.innerHTML = messages.map(msg => {
+            // If XSS vulnerability is OFF, escape the message content
+            const displayMessage = currentVulns.xss ? msg.message : escapeHtml(msg.message);
+            const displayAuthor = currentVulns.xss ? msg.author : escapeHtml(msg.author);
+            
+            return `
+                <div class="message-item">
+                    <div class="message-header">
+                        <span>${displayAuthor}</span>
+                        <span>${new Date(msg.timestamp).toLocaleString('hr-HR')}</span>
+                    </div>
+                    <div class="message-content">${displayMessage || '(Empty message)'}</div>
                 </div>
-                <div class="message-content">${msg.message || '(Empty message)'}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } catch (error) {
         console.error('Error loading messages:', error);
     }
