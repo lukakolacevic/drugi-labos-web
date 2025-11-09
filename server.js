@@ -27,7 +27,12 @@ app.use(express.static('public'));
 let messages = [];
 let users = [
   { id: 1, username: 'admin', password: 'admin123', role: 'admin', email: 'admin@example.com' },
-  { id: 2, username: 'user', password: 'user123', role: 'user', email: 'user@example.com' }
+  { id: 2, username: 'user', password: 'user123', role: 'user', email: 'user@example.com' },
+  { id: 3, username: 'marko', password: 'marko123', role: 'user', email: 'marko@example.com' },
+  { id: 4, username: 'ana', password: 'ana123', role: 'user', email: 'ana@example.com' },
+  { id: 5, username: 'petar', password: 'petar123', role: 'user', email: 'petar@example.com' },
+  { id: 6, username: 'marija', password: 'marija123', role: 'user', email: 'marija@example.com' },
+  { id: 7, username: 'ivan', password: 'ivan123', role: 'user', email: 'ivan@example.com' }
 ];
 
 let vulnerabilities = {
