@@ -1,131 +1,91 @@
-# Web Security Vulnerabilities Demo
+# Web Security Vulnerabilities Demo (lokalno pokretanje)
 
-Web aplikacija koja demonstrira dvije sigurnosne ranjivosti: **Cross-site scripting (XSS)** i **Loša kontrola pristupa (Broken Access Control)**.
+Ovaj projekt demonstrira dvije sigurnosne ranjivosti web-aplikacija:
+- Cross-site scripting (XSS)
+- Loša kontrola pristupa (Broken Access Control)
 
-## Implementirane ranjivosti
+Ako poveznica na Render nije dostupna, možete aplikaciju pokrenuti lokalno prema uputama u nastavku.
 
-1. **Cross-site scripting (XSS)** - Stored XSS napad
-2. **Loša kontrola pristupa (Broken Access Control)** - Neautorizirani pristup admin resursima
+## Preduvjeti
+- Instaliran Node.js (verzija 14+ preporučeno). Provjera:
+```
+node -v
+npm -v
+```
 
-## Funkcionalnosti
-
-### Za svaku ranjivost:
-- ✅ Funkcionalnost kojom se omogućuje ranjivost
-- ✅ Funkcionalnost kojom se onemogućuje ranjivost
-- ✅ Prekidač (checkbox) kojim se ranjivost uključuje i isključuje
-- ✅ Napadi se mogu pokrenuti kroz sučelje web-aplikacije
-- ✅ Učinak napada je vidljiv u korisničkom sučelju
-
-## Instalacija i pokretanje
-
-### Lokalno pokretanje
-
-1. Instalirajte Node.js (verzija 14 ili novija)
-
-2. Instalirajte dependencies:
-```bash
+## Instalacija i pokretanje (lokalno)
+1. Klonirajte ili preuzmite repozitorij
+2. U terminalu uđite u korijenski direktorij projekta
+3. Instalirajte ovisnosti:
+```
 npm install
 ```
-
-3. Pokrenite server:
-```bash
+4. Pokrenite server:
+```
 npm start
 ```
-
-4. Otvorite web preglednik na adresi:
+5. Otvorite preglednik i idite na:
 ```
 http://localhost:3000
 ```
 
-### Pokretanje u development modu (s automatskim restartom)
-```bash
+Ako želite development način rada (auto-restart):
+```
 npm run dev
 ```
 
-## Testiranje aplikacije
+## Test korisnici
+- Admin: `admin` / `admin123`
+- Obični korisnik: `user` / `user123`
 
-### Test korisnici
 
-**Admin korisnik:**
-- Korisničko ime: `admin`
-- Lozinka: `admin123`
+## Prekidači ranjivosti
+U sučelju postoje checkbox prekidači za svaku ranjivost (XSS i Broken Access Control). 
+- Kada je ranjivost uključena: ponašanje je nesigurno (ranjivo)
+- Kada je ranjivost isključena: primjenjuje se zaštita
 
-**Obični korisnik:**
-- Korisničko ime: `user`
-- Lozinka: `user123`
+## Kako testirati XSS
+1. Provjerite da je prekidač (checkbox) za XSS uključen
+2. Upišite autora i poruku te kliknite “Dodaj poruku”
+3. Primjeri poruka (payloadi):
+   - Automatsko izvršavanje preko onerror:
+     ```
+     <img src=x onerror="alert('XSS: ' + document.cookie)">
+     ```
+   - Klikom (socijalni inženjering):
+     ```
+     <div onclick="alert('XSS napad izvršen! Cookie: ' + document.cookie)" style="cursor:pointer;color:blue;padding:10px;border:1px solid red;">Klikni na mene za besplatan mobitel</div>
+     ```
+     Nakon umetanja poruke, otvorite listu poruka i kliknite na plavi okvir s crvenim obrubom da biste pokrenuli XSS.
 
-### Testiranje XSS ranjivosti
+4. Kada XSS isključite, svi HTML znakovi bit će escapirani i JavaScript se neće izvršiti (uključujući već spremljene poruke prilikom prikaza).
 
-1. Provjerite da je checkbox "Ranjivost uključena" označen za XSS sekciju
-2. Unesite autor (npr. "Test korisnik")
-3. Unesite maliciozni JavaScript kod u polje za poruku:
-   ```
-   <script>alert('XSS Attack! Cookie: ' + document.cookie)</script>
-   ```
-   ili jednostavnije:
-   ```
-   <img src=x onerror="alert('XSS: ' + document.cookie)">
-   ```
-4. Kliknite "Dodaj poruku"
-5. JavaScript kod će se izvršiti i prikazati alert s cookie informacijama
-6. Poruka će se prikazati u listi poruka (ako je ranjivost uključena, kod će se izvršiti)
-7. Isključite ranjivost i ponovite unos - HTML znakovi će biti escapirani i kod se neće izvršiti
 
-### Testiranje Broken Access Control ranjivosti
+## Kako testirati Broken Access Control
+1. Uključite ranjivost “Broken Access Control”
+2. Prijavite se kao obični korisnik: `user` / `user123`
+3. Kliknite “Učitaj sve korisnike” u admin panelu
+   - Kada je ranjivost uključena: obični korisnik vidi sve korisnike (neispravno)
+   - Kada je ranjivost isključena: pristup je odbijen osim za admina (`admin` / `admin123`)
 
-1. Provjerite da je checkbox "Ranjivost uključena" označen za Broken Access Control sekciju
-2. Prijavite se kao obični korisnik:
-   - Korisničko ime: `user`
-   - Lozinka: `user123`
-3. Kliknite na gumb "Učitaj sve korisnike" u admin panelu
-4. Kada je ranjivost uključena, obični korisnik će moći vidjeti sve korisnike (uključujući admina)
-5. Isključite ranjivost i ponovite korake 2-3
-6. Sada će se prikazati greška "Access denied. Admin role required." jer je autorizacija ispravno implementirana
+## Tehničke napomene
+- Aplikacija koristi in-memory pohranu (poruke i sesije u memoriji). Podaci se resetiraju pri restartu servera.
+- Za potrebe demonstracije, kolačić sesije je vidljiv JavaScriptu (`httpOnly: false`) kako bi se XSS utjecaj mogao jasno prikazati alertom s `document.cookie`.
 
-## Tehnički detalji
+## Rješavanje problema
+- Port zauzet: Provjerite da ništa drugo ne koristi port 3000 ili postavite varijablu `PORT`, npr. `PORT=4000 npm start` i otvorite `http://localhost:4000`
+- Prazna stranica / greška u konzoli: Osvježite stranicu i provjerite terminal log (`npm start`)
+- Node verzija: Ako je vrlo stara, ažurirajte Node.js (npr. 18 LTS)
 
-### XSS implementacija
-- Kada je ranjivost uključena: korisnički unos se direktno prikazuje bez sanitizacije
-- Kada je ranjivost isključena: korisnički unos se escapira pomoću `escapeHtml()` funkcije
+## Skripte
+- `npm start` — pokreće server (production)
+- `npm run dev` — development način s auto-restartom (nodemon)
 
-### Broken Access Control implementacija
-- Kada je ranjivost uključena: provjerava se samo autentifikacija (je li korisnik prijavljen), ne i autorizacija (ima li admin ulogu)
-- Kada je ranjivost isključena: provjerava se i autentifikacija i autorizacija (korisnik mora biti admin)
+## Struktura (sažetak)
+- `server.js` — Express server, API i logika ranjivosti
+- `public/index.html` — UI
+- `public/app.js` — front-end logika, pozivi na API i prekidači ranjivosti
+- `public/styles.css` — stilovi (tema crvena/bordo)
+- `render.yaml` — konfiguracija za Render (cloud deployment)
 
-## Deployment
-
-Aplikacija je spremna za deployment na Render, Vercel, Heroku ili slične platforme.
-
-### Render deployment
-
-1. Povežite GitHub repozitorij s Renderom
-2. Postavite:
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-   - Environment: Node
-
-### Vercel deployment
-
-1. Instalirajte Vercel CLI: `npm i -g vercel`
-2. Pokrenite: `vercel`
-3. Slijedite upute
-
-### Heroku deployment
-
-1. Instalirajte Heroku CLI
-2. Pokrenite:
-   ```bash
-   heroku create
-   git push heroku main
-   ```
-
-## Napomene
-
-- Sve funkcionalnosti su uspješno implementirane
-- Aplikacija koristi in-memory storage (podaci se resetiraju nakon restarta servera)
-- Za produkcijsku upotrebu preporuča se dodati pravu bazu podataka i dodatne sigurnosne mjere
-
-## Autor
-
-Projekt izrađen za demonstraciju sigurnosnih ranjivosti web-aplikacija.
-
+Sretno s testiranjem! Ukoliko je potrebno, možete uključiti/isključiti ranjivosti i odmah vidjeti razliku u ponašanju aplikacije.
