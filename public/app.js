@@ -273,7 +273,7 @@ async function loadAdminUsers() {
             `;
         } else {
             resultDiv.innerHTML = `
-                <div class="error-message show">✗ ${data.error}</div>
+                <div class="error-message show">${data.error}</div>
             `;
         }
     } catch (error) {
